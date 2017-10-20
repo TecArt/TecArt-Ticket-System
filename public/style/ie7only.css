@@ -1,0 +1,20 @@
+
+/* login */
+
+.info-box {width:160px}
+
+.login-box {width:300px;border:1px solid #ccc}
+.login {width:260px}
+.login-field {padding:7px 9px 0px 9px!important;width:277px!important}
+.login-button {padding:8px 15px 8px 15px!important}
+.login-info {width:310px}
+.tooltip {display:none}
+
+/* ticket */
+
+html, body {overflow:hidden}
+.button-ticket {overflow:visible}
+#top {overflow-x:hidden;overflow-y:auto}
+#toolbar {height:94px}
+.frame-navi {margin-bottom:4px}
+.frame-navi-input {margin:2px 0px 4px 8px}

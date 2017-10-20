@@ -1,0 +1,29 @@
+language: php
+
+# Use containers
+# @link http://docs.travis-ci.com/user/migrating-from-legacy/#Why-migrate-to-container-based-infrastructure%3F
+# @link http://docs.travis-ci.com/user/workers/container-based-infrastructure/#Routing-your-build-to-container-based-infrastructure
+sudo: false
+
+php:
+  - '5.6'
+  - '7.0'
+  - '7.1'
+  - hhvm
+
+cache:
+  apt: true
+
+# Lint all PHP files
+before_script:
+  - '! find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
+  - composer self-update
+  - composer install --prefer-source --no-interaction --dev
+  - composer require phpcheckstyle/phpcheckstyle
+
+script:
+  - test/checkstyle/checkstyle.sh
+
+notifications:
+    on_success: never
+    on_failure: always

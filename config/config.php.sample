@@ -1,0 +1,22 @@
+<?php
+    /** config **/
+    $config["language"]					= "de";
+    $config["webservice_url"]			= "http://intranet.example.com/";
+    $config["username"]					= "Ticketsystem";
+    $config["password"]					= "secure";
+    $config["login_template"]   		= "login_standard";
+    $config["logout_redirect"]			= "https://www.tecart.de/";
+    $config["show_call_activities"]		= false;
+    $config["show_email_activities"]	= false;
+    $config["ticket_sections"]			= "";
+	$config["closebutton"]['enabled']  = false;
+	$config["closebutton"]['sections'] = array();
+    
+    $config["partners"]["enabled"]      		= false;		
+	$config["partners"]["partner_access_field"] = 'userXY';
+    $config["partners"]["contract_type_field"]	= 'category';
+    $config["partners"]["contract_type"]		= 'Partnervertrag';
+    $config["partners"]["project_id"]			= '';
+    $config["partners"]["folder_name"]			= '/';    
+    $config["partners"]["wishlist_url"]			= 'https://wunschliste.tecart.de/index.php?auth=tts&inline=1';
+?>
