@@ -36,3 +36,9 @@ New functions and classes and altered functions and classes MUST contain
 docblock comments adhering to the
 [PHPDoc](http://docs.phpdoc.org/references/phpdoc/index.html) standard, even if
 they didn't have comments before.
+
+## Translations
+
+To translate the software to another language, create a new file in the `lang/` folder with the name pattern `XX.php` XX being the shortcode for the language(IETF language code for country-specific translations or ISO 639 two-letter code for generic translations).
+
+The easiest way to start out is to copy the English translation and start from there. To test your translation, change the language setting in [`config/config.php`](https://github.com/TecArt/TecArt-Ticket-System/blob/8b2932d5a30ab61f362113e1880aa905c674e07a/config/config.php.sample#L3) to the tag for your language.
