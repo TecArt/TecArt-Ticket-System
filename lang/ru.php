@@ -141,4 +141,3 @@ $lang['levelup']      = 'Уровень выше';
 $lang['refresh']      = 'Обновить';
 $lang['folder_empty'] = 'Эта папка пуста.';
 $lang['mime_folder']  = 'Папка';
-
