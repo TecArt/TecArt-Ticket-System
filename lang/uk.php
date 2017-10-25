@@ -141,3 +141,4 @@ $lang['levelup']      = 'Рівень вище';
 $lang['refresh']      = 'Оновити';
 $lang['folder_empty'] = 'Ця тека порожня.';
 $lang['mime_folder']  = 'Тека';
+
