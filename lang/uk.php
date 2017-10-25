@@ -25,7 +25,7 @@ $lang['show_all_month']     = 'Усі Місяці...';
 
 $lang['activity']       = 'Вид діяльності';
 $lang['activity_type']  = 'Тип';
-$lang['name']           = 'Им\'я';
+$lang['name']           = 'Ім\'я';
 $lang['email']          = 'Email';
 $lang['call']           = 'Дзвінок';
 $lang['action']         = 'Дія';
@@ -97,7 +97,7 @@ $lang['upload_folder_name']  = 'Завантаження';
 
 $lang['err_wrong_password']          = 'Ви ввели невірний пароль!';
 $lang['err_password_not_matched']    = 'Паролі не співпадають!';
-$lang['err_no_username_password']    = 'Будь ласка, введіть ваші им\'я користувача та пароль!';
+$lang['err_no_username_password']    = 'Будь ласка, введіть ваші ім\'я користувача та пароль!';
 $lang['err_no_new_password']         = 'Будь ласка, введіть новий пароль!';
 $lang['err_no_old_password']         = 'Будь ласка, введіть ваш поточний пароль!';
 $lang['err_crm_connect']             = 'Неможливо з\'єднатись з TecArt-System.<br><br>Будь ласка, зверніться до служби підтримки!';
