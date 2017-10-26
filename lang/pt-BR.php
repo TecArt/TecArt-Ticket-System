@@ -1,6 +1,8 @@
 <?php
 $lang['title'] = 'TecArt Ticket System';
+
 $lang['foot_note'] = 'Ticket-Web Interface &copy; by TecArt GmbH';
+
 $lang['custom_number']  = 'Cliente ID';
 $lang['password']       = 'Senha';
 $lang['login']          = 'Login';
@@ -8,6 +10,7 @@ $lang['headline_standard'] = 'Ticket-Web Interface';
 $lang['headline']       = 'TecArt Ticket-Web Interface';
 $lang['logout']         = 'Deslogar';
 $lang['view']           = 'Visualizar';
+
 $lang['show_current']       = 'Tickets Atuais';
 $lang['show_all']           = 'Todos Tickets';
 $lang['create_new']         = 'Criar Novo Ticket';
@@ -15,13 +18,15 @@ $lang['closed_ticket']      = 'Tickets Fechados';
 $lang['not_handle_ticket']  = 'Tickets Abertos';
 $lang['partner_portal']     = 'Portal de Parceiros';
 $lang['partner_wishlist']   = 'Lista de Desejos';
+
 $lang['show_all_year']      = 'Todos Anos...';
 $lang['show_all_month']     = 'Todos Mêses...';
+
 $lang['activity']       = 'Atividade';
 $lang['activity_type']  = 'Tipo';
 $lang['name']           = 'Nome';
 $lang['email']          = 'E-mail';
-$lang['call']           = 'Chamar';
+$lang['call']           = 'Chamado';
 $lang['action']         = 'Ação';
 $lang['category']       = 'Categoria';
 $lang['priority']       = 'Prioridade';
@@ -39,6 +44,7 @@ $lang['document']       = 'Documento';
 $lang['type']           = 'Tipo de Arquivo';
 $lang['size']           = 'Tamanho do Arquivo';
 $lang['upload_date']    = 'Data de Envio';
+
 $lang['jan']            = 'Janeiro';
 $lang['feb']            = 'Fevereiro';
 $lang['mar']            = 'Março';
@@ -51,6 +57,7 @@ $lang['sep']            = 'Setembro';
 $lang['oct']            = 'Outubro';
 $lang['nov']            = 'Novembro';
 $lang['dec']            = 'Dezembro';
+
 $lang['show_ticke_all']      = 'Mostrar Todos';
 $lang['show_ticket_actions'] = 'Mostrar Ações';
 $lang['show_ticke_emails']   = 'Mostrar Emails';
@@ -71,16 +78,20 @@ $lang['duration']       = 'Duração';
 $lang['post']           = 'Post';
 $lang['entries']        = 'Atividade';
 $lang['last_entry']     = 'Última Atividade';
+
 $lang['sections']          = 'Seções';
 $lang['tsection']          = 'Seção';
 $lang['show_all_sections'] = 'Mostrar todas Seções';
+
 $lang['today']          = 'Hoje';
 $lang['yesterday']      = 'Ontem';
 $lang['nr']             = 'Nr.';
 $lang['company']        = 'Empresa';
 $lang['file_upload']    = 'Enviar Arquivo';
 $lang['upload']         = 'Enviar';
+
 $lang['upload_folder_name']  = 'Pasta para Enviar';
+
 $lang['err_wrong_password']          = 'Senha incorreta!';
 $lang['err_password_not_matched']    = 'Senhas não conferem!';
 $lang['err_no_username_password']    = 'Por favor insira seu usuario e senha!';
@@ -114,12 +125,15 @@ $lang['err_filter_nomonth']          = 'Por favor, selecione ano antes de mês.'
 $lang['err_ok']                      = 'Ok';
 $lang['err_partners_not_enabled']    = 'A função Partner Portal não está ativa.';
 $lang['err_partners_no_contract']    = 'O acesso ao Portal de Parceiros foi negado! (nenhum contrato de acesso ao parceiro ativo ou acesso desativado)';
+
 $lang['create_ticket_success']          = 'Ticket criado com sucesso.';
 $lang['create_ticket_action_success']   = 'Ação enviado com sucesso.';
 $lang['doc_upload_success']             = 'Documento enviado com sucesso.';
 $lang['change_pass_success']            = 'Senha alterado com sucesso.';
 $lang['change_pass_error']              = 'Erro enquanto atualizava senha!';
+
 $lang['section_standard'] = 'Padrâo';
+
 $lang['levelup']      = 'Level Up';
 $lang['refresh']      = 'Atualizar';
 $lang['folder_empty'] = 'A pasta esta vazia.';
