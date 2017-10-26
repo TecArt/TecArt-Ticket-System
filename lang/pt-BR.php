@@ -119,8 +119,9 @@ $lang['create_ticket_action_success']   = 'Ação enviado com sucesso.';
 $lang['doc_upload_success']             = 'Documento enviado com sucesso.';
 $lang['change_pass_success']            = 'Senha alterado com sucesso.';
 $lang['change_pass_error']              = 'Erro enquanto atualizava senha!';
-$lang['section_standard'] = 'Padrâo';
+$lang['section_standard'] = 'Padrão';
 $lang['levelup']      = 'Level Up';
 $lang['refresh']      = 'Atualizar';
 $lang['folder_empty'] = 'A pasta esta vazia.';
 $lang['mime_folder']  = 'Pasta';
+
