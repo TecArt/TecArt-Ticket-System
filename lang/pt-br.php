@@ -4,20 +4,20 @@ $lang['title'] = 'TecArt Ticket System';
 
 $lang['foot_note'] = 'Ticket-Web Interface &copy; by TecArt GmbH';
 
-$lang['custom_number']  = 'Customer ID';
+$lang['custom_number']  = 'Cliente ID';
 $lang['password']       = 'Senha';
 $lang['login']          = 'Login';
 $lang['headline_standard'] = 'Ticket-Web Interface';
 $lang['headline']       = 'TecArt Ticket-Web Interface';
 $lang['logout']         = 'Sair';
-$lang['view']           = 'View';
+$lang['view']           = 'Visualizar';
 
 $lang['show_current']       = 'Tickets';
 $lang['show_all']           = 'Todos os Tickets';
 $lang['create_new']         = 'Criar novo Ticket';
 $lang['closed_ticket']      = 'Tickets fechados';
-$lang['not_handle_ticket']  = 'Unhandled Tickets';
-$lang['partner_portal']     = 'Partner Portal';
+$lang['not_handle_ticket']  = 'Tickets Abertos';
+$lang['partner_portal']     = 'Portal de Parceiros';
 $lang['partner_wishlist']   = 'Lista de desejos';
 
 $lang['show_all_year']      = 'Todos os anos...';
@@ -53,8 +53,8 @@ $lang['mar']            = 'Março';
 $lang['apr']            = 'Abril';
 $lang['mai']            = 'Maio';
 $lang['jun']            = 'Junho';
-$lang['jul']            = 'Julio';
-$lang['aug']            = 'Augusto';
+$lang['jul']            = 'Julho';
+$lang['aug']            = 'Agosto';
 $lang['sep']            = 'Setembro';
 $lang['oct']            = 'Outubro';
 $lang['nov']            = 'Novembro';
