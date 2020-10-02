@@ -88,7 +88,7 @@ $lang['show_all_sections'] = 'Show all sections';
 
 $lang['today']          = 'Today';
 $lang['yesterday']      = 'Yesterday';
-$lang['nr']             = 'Nr.';
+$lang['nr']             = 'No.';
 $lang['company']        = 'Company';
 $lang['file_upload']    = 'File Upload';
 $lang['upload']         = 'Upload';
