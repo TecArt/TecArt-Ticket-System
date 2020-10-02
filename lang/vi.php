@@ -60,7 +60,7 @@ $lang['oct']            = 'tháng Mười';
 $lang['nov']            = 'tháng Mười Một';
 $lang['dec']            = 'tháng Chạp';
 
-$lang['show_ticke_all']      = 'Show tất cả';
+$lang['show_ticke_all']      = 'Hiện tất cả';
 $lang['show_ticket_actions'] = 'Hiện action';
 $lang['show_ticke_emails']   = 'Hiện Email';
 $lang['show_ticke_calls']    = 'Hiện cuộc gọi';
@@ -77,7 +77,7 @@ $lang['from']           = 'Từ';
 $lang['to']             = 'Tới';
 $lang['questioner']     = 'Người hỏi';
 $lang['content']        = 'Nội dung';
-$lang['duration']       = 'Duration';
+$lang['duration']       = 'Khoảng thời gian';
 $lang['post']           = 'Bài đăng';
 $lang['entries']        = 'Hoạt động';
 $lang['last_entry']     = 'Hoạt động cuối';
@@ -137,7 +137,7 @@ $lang['change_pass_error']              = 'Lỗi xảy ra trong lúc đổi m
 
 $lang['section_standard'] = 'Chuẩn';
 
-$lang['levelup']      = 'Lên hạng';
+$lang['levelup']      = 'Nâng hạng';
 $lang['refresh']      = 'Làm mới';
 $lang['folder_empty'] = 'Thư mục này rỗng.';
 $lang['mime_folder']  = 'Thư mục';
