@@ -1,24 +1,24 @@
 <?php
 
-$lang['title'] = 'Sistem Tiket TecArt';
+$lang['title'] = 'TecArt Ticket System';
 
-$lang['foot_note'] = 'Ticket-Web Interface &copy; by TecArt GmbH';
+$lang['foot_note'] = 'Ticket-Tampilan Web &copy; by TecArt GmbH';
 
 $lang['custom_number']  = 'ID Pelanggan';
 $lang['password']       = 'Kata Sandi';
 $lang['login']          = 'Masuk';
-$lang['headline_standard'] = 'Ticket-Web Interface';
-$lang['headline']       = 'TecArt Ticket-Web Interface';
-$lang['logout']         = 'Keluar';
-$lang['view']           = 'Lihat';
+$lang['headline_standard'] = 'Ticket-Tampilan Web';
+$lang['headline']       = 'TecArt Ticket-Tampilan Web';
+$lang['logout']         = 'Logout';
+$lang['view']           = 'Tinjau';
 
-$lang['show_current']       = 'Tiket Saat Ini';
+$lang['show_current']       = 'Tiket saat ini';
 $lang['show_all']           = 'Semua Tiket';
-$lang['create_new']         = 'Buat Tiket Baru';
-$lang['closed_ticket']      = 'Tiket Yang Sudah Ditutup';
-$lang['not_handle_ticket']  = 'Tiket Yang Belum Ditangani';
-$lang['partner_portal']     = 'Portal Mitra';
-$lang['partner_wishlist']   = 'Wishlist';
+$lang['create_new']         = 'Membuat Tiket Baru';
+$lang['closed_ticket']      = 'Tiket Ditutup';
+$lang['not_handle_ticket']  = 'Tiket Belum Tertangani';
+$lang['partner_portal']     = 'Portal Partner';
+$lang['partner_wishlist']   = 'Daftar Keinginan';
 
 $lang['show_all_year']      = 'Semua Tahun...';
 $lang['show_all_month']     = 'Semua Bulan...';
@@ -26,26 +26,26 @@ $lang['show_all_month']     = 'Semua Bulan...';
 $lang['activity']       = 'Aktivitas';
 $lang['activity_type']  = 'Tipe';
 $lang['name']           = 'Nama';
-$lang['email']          = 'Surel';
-$lang['call']           = 'Panggil';
+$lang['email']          = 'E-mail';
+$lang['call']           = 'Panggilan';
 $lang['action']         = 'Aksi';
 $lang['category']       = 'Kategori';
 $lang['priority']       = 'Prioritas';
-$lang['subject']        = 'Subjek';
+$lang['subject']        = 'Judul';
 $lang['description']    = 'Deskripsi';
 $lang['save']           = 'Simpan';
 $lang['status']         = 'Status';
 $lang['id']             = 'ID Internal';
 $lang['tnumber']        = 'Tiket #';
-$lang['create_date']    = 'Tanggal Dibuat';
-$lang['edit']           = 'Ubah';
+$lang['create_date']    = 'Tanggal Pembuatan';
+$lang['edit']           = 'Sunting';
 $lang['year']           = 'Tahun';
 $lang['month']          = 'Bulan';
 
-$lang['document']       = 'Dokumen';
-$lang['type']           = 'Tipe Berkas';
-$lang['size']           = 'Ukuran Berkas';
-$lang['upload_date']    = 'Upload date';
+$lang['document']       = 'Documen';
+$lang['type']           = 'Tipe berkas';
+$lang['size']           = 'Ukuran berkas';
+$lang['upload_date']    = 'Tanggal unggal';
 
 $lang['jan']            = 'Januari';
 $lang['feb']            = 'Februari';
@@ -61,21 +61,21 @@ $lang['nov']            = 'November';
 $lang['dec']            = 'Desember';
 
 $lang['show_ticke_all']      = 'Tampilkan Semua';
-$lang['show_ticket_actions'] = 'Tampilkan Aksi';
-$lang['show_ticke_emails']   = 'Tampilkan Surel';
+$lang['show_ticket_actions'] = 'Tampilkan Semua';
+$lang['show_ticke_emails']   = 'Tampilkan Email';
 $lang['show_ticke_calls']    = 'Tampilkan Panggilan';
-$lang['change_password']     = 'Perbarui Kata Sandi';
+$lang['change_password']     = 'Perbari Kata Sandi';
 $lang['old_password']        = 'Kata Sandi Lama';
 $lang['new_password']        = 'Kata Sandi Baru';
-$lang['confirm_password']    = 'Konfirmasi Kata Sandi';
-$lang['change']              = 'Ubah';
-$lang['ticket_close']        = 'Tutup Tiket Ini';
+$lang['confirm_password']    = 'Konfirmasi Kata Sandir Baru';
+$lang['change']              = 'Perbarui';
+$lang['ticket_close']        = 'Tutup tiket ini';
 
-$lang['post_reply']     = 'Buat Aksi';
+$lang['post_reply']     = 'Membuat Aksi';
 $lang['date']           = 'Tanggal';
 $lang['from']           = 'Dari';
-$lang['too']            = 'Kepada';
-$lang['questioner']     = 'Penanya';
+$lang['too']            = 'Ke';
+$lang['questioner']     = 'Kuisioner';
 $lang['content']        = 'Konten';
 $lang['duration']       = 'Durasi';
 $lang['post']           = 'Pos';
@@ -94,6 +94,7 @@ $lang['file_upload']    = 'Unggah Berkas';
 $lang['upload']         = 'Unggah';
 
 $lang['upload_folder_name']  = 'Unggah';
+
 
 $lang['err_wrong_password']          = 'Anda memasukkan Kata Sandi yang salah!';
 $lang['err_password_not_matched']    = 'Kata Sandi tidak cocok!';
@@ -132,12 +133,13 @@ $lang['err_partners_no_contract']    = 'Akses ke Portal mitra ditolak! (Tidak ad
 $lang['create_ticket_success']          = 'Tiket berhasil dibuat.';
 $lang['create_ticket_action_success']   = 'Aksi berhasil dikirim.';
 $lang['doc_upload_success']             = 'Dokumen berhasil diunggah.';
-$lang['change_pass_success']            = 'Kata Sandi berhasi diubah.';
-$lang['change_pass_error']              = 'Terjadi masalah saat mengubah password!';
+$lang['change_pass_success']            = 'Kata sandi telah berhasil diubah.';
+$lang['change_pass_error']              = 'Terjadi kesalahan saat memperbarui kata sandi!';
 
-$lang['section_standard'] = 'Standar';
+$lang['section_standard'] = 'Standard';
 
-$lang['levelup']      = 'Naik Level';
-$lang['refresh']      = 'Refresh';
+$lang['levelup']      = 'Naik Tingkat';
+$lang['refresh']      = 'Perbarui';
+
 $lang['folder_empty'] = 'Folder ini kosong.';
 $lang['mime_folder']  = 'Folder';
