@@ -88,7 +88,7 @@ $lang['show_all_sections'] = 'Show all sections';
 
 $lang['today']          = 'Today';
 $lang['yesterday']      = 'Yesterday';
-$lang['nr']             = 'Nr.';
+$lang['nr']             = 'No.';
 $lang['company']        = 'Company';
 $lang['file_upload']    = 'File Upload';
 $lang['upload']         = 'Upload';
@@ -113,7 +113,7 @@ $lang['err_no_subject']              = 'Please enter a subject!';
 $lang['err_no_notes']                = 'Please enter a description!';
 $lang['err_no_email']                = 'Please inform your email!';
 $lang['err_not_supported_email']     = 'Please inform a valid e-mail adress!';
-$lang['err_no_responsibler_found']   = 'Responsible not found.<br><br>Please contact Support!';
+$lang['err_no_responsibler_found']   = 'Responsible person not found.<br><br>Please contact Support!';
 $lang['err_create_ticket']           = 'Error creating Ticket!<br><br>Please, try again!';
 $lang['err_create_ticket_action']    = 'Error creating Ticket action!<br><br>Please, try again!';
 $lang['err_connection']              = 'Connection error! Please, try again!';
@@ -127,7 +127,7 @@ $lang['no_set_activity']             = 'Please select at least one activity!';
 $lang['err_filter_nomonth']          = 'Please select the year before filtering by month.';
 $lang['err_ok']                      = 'Ok';
 $lang['err_partners_not_enabled']    = 'The Partner Portal function is not active.';
-$lang['err_partners_no_contract']    = 'Access to the Partner Portal was denied! (no active partner access contract or access disabled)';
+$lang['err_partners_no_contract']    = 'Access to the Partner Portal has been denied! (no active partner access contract or access disabled)';
 
 $lang['create_ticket_success']          = 'Ticket successfully created.';
 $lang['create_ticket_action_success']   = 'Action sent successfully.';
