@@ -1,6 +1,6 @@
 <?php
 
-$lang['title'] = 'Σύστημα εισητηρίων TecArt';
+$lang['title'] = 'Σύστημα εισιτηρίων TecArt';
 
 $lang['foot_note'] = 'Ticket - Διαδικτυακή Διεπαφή &copy; από την TecArt GmbH';
 
@@ -12,11 +12,11 @@ $lang['headline']       = 'TecArt Ticket - Διαδικτυακή Διεπαφή
 $lang['logout']         = 'Αποσύνδεση';
 $lang['view']           = 'Προβολή';
 
-$lang['show_current']       = 'Τρέχοντα εισητήρια';
-$lang['show_all']           = 'Όλα τα εισητήρια';
-$lang['create_new']         = 'Δημιουργία νέου εισητηρίου';
-$lang['closed_ticket']      = 'Κλειστά εισητήρια';
-$lang['not_handle_ticket']  = 'Ανεπίλυτα εισητήρια';
+$lang['show_current']       = 'Τρέχοντα εισιτήρια';
+$lang['show_all']           = 'Όλα τα εισιτήρια';
+$lang['create_new']         = 'Δημιουργία νέου εισιτηρίου';
+$lang['closed_ticket']      = 'Κλειστά εισιτήρια';
+$lang['not_handle_ticket']  = 'Ανεπίλυτα εισιτήρια';
 $lang['partner_portal']     = 'Πύλη συνεργατών';
 $lang['partner_wishlist']   = 'Λίστα επιθυμιών';
 
@@ -36,7 +36,7 @@ $lang['description']    = 'Περιγραφή';
 $lang['save']           = 'Αποθήκευση';
 $lang['status']         = 'Κατάσταση';
 $lang['id']             = 'Εσωτερικό ID';
-$lang['tnumber']        = 'Εισητήριο #';
+$lang['tnumber']        = 'εισιτήριο #';
 $lang['create_date']    = 'Ημερομηνία δημιουργίας';
 $lang['edit']           = 'Επεξεργασία';
 $lang['year']           = 'Έτος';
@@ -69,7 +69,7 @@ $lang['old_password']        = 'Παλιός κωδικός';
 $lang['new_password']        = 'Νέος κωδικός';
 $lang['confirm_password']    = 'Επιβεβαίωση νέου κωδικού';
 $lang['change']              = 'Επικαιροποίηση';
-$lang['ticket_close']        = 'Κλήσε αυτό το εισητήριο';
+$lang['ticket_close']        = 'Κλήσε αυτό το εισιτήριο';
 
 $lang['post_reply']     = 'Δημιουργία ενέργειας';
 $lang['date']           = 'Ημερομηνία';
@@ -104,8 +104,8 @@ $lang['err_crm_connect']             = 'Δεν μπορείτε να συνδε�
 $lang['err_incorrect_cid']           = 'Εισάγατε ένα λάθος όνομα χρήστη!';
 $lang['err_incorrect_username_pass'] = 'Το όνομα χρήστη και/ή ο κωδικός δεν είναι έγκυρα!';
 $lang['err_cid_not_found']           = 'Δεν βρέθηκε το ID της επαφής.<br><br>Παρακαλώ συνδεθείτε ξανά!';
-$lang['err_tid_not_found']           = 'Δεν βρέθηκε το ID του εισητηρίου.<br><br>Παρακαλώ συνδεθείτε ξανά!';
-$lang['err_no_ticket_found']         = 'Δεν βρέθηκαν εισητήρια!';
+$lang['err_tid_not_found']           = 'Δεν βρέθηκε το ID του εισιτηρίου.<br><br>Παρακαλώ συνδεθείτε ξανά!';
+$lang['err_no_ticket_found']         = 'Δεν βρέθηκαν εισιτήρια!';
 $lang['err_no_contact_found']        = 'Δεν βρέθηκαν επαφές!';
 $lang['err_no_document_found']       = 'Δεν βρέθηκαν έγγραφα!';
 $lang['err_no_name']                 = 'Παρακαλώ γράψτε το όνομά σας!';
@@ -114,10 +114,10 @@ $lang['err_no_notes']                = 'Παρακαλώ γράψτε μια π�
 $lang['err_no_email']                = 'Παρακαλώ ενημερώστε το ηλεκτρονικό ταχυδρομείο σας!';
 $lang['err_not_supported_email']     = 'Παρακαλώ ενημερώστε μια έγκυρη διεύθυνση ηλεκτρονικού ταχυδρομείου!';
 $lang['err_no_responsibler_found']   = 'Δεν βρέθηκε το υπεύθυνο άτομο.<br><br>Παρακαλώ επικοινωνήστε με την υποστήριξη πελατών!';
-$lang['err_create_ticket']           = 'Σφάλμα στην δημιουργία εισητηρίου!<br><br>Παρακαλώ δοκιμάστε ξανά!';
-$lang['err_create_ticket_action']    = 'Σφάλμα την ενέργεια δημιουργίας εισητηρίου!<br><br>Παρακαλώ δοκιμάστε ξανά!';
+$lang['err_create_ticket']           = 'Σφάλμα στην δημιουργία εισιτηρίου!<br><br>Παρακαλώ δοκιμάστε ξανά!';
+$lang['err_create_ticket_action']    = 'Σφάλμα την ενέργεια δημιουργίας εισιτηρίου!<br><br>Παρακαλώ δοκιμάστε ξανά!';
 $lang['err_connection']              = 'Σφάλμα σύνδεσης! Παρακαλώ δοκιμάστε ξανά!';
-$lang['err_no_authorization']        = 'Δεν έχετε πρόσβαση σε αυτό το εισητήριο.<br><br>Παρακαλώ επικοινωνήστε με την υποστήριξη πελατών!';
+$lang['err_no_authorization']        = 'Δεν έχετε πρόσβαση σε αυτό το εισιτήριο.<br><br>Παρακαλώ επικοινωνήστε με την υποστήριξη πελατών!';
 $lang['err_file_upload']             = 'Σφάλμα στην μεταφόρτωση αρχείου! Παρακαλώ δοκιμάστε ξανά.';
 $lang['err_adding_doc']              = 'Σφάλμα κατα την μεταφορά του εγγράφου στο σύστημα της TecArt!<br><br>Παρακαλώ δοκιμάστε ξανά!';
 $lang['err_create_folder']           = 'Σφάλμα στην δημιουργία νέου φακέλου!<br><br>Παρακαλώ δοκιμάστε ξανά!';
@@ -129,7 +129,7 @@ $lang['err_ok']                      = 'Εντάξει';
 $lang['err_partners_not_enabled']    = 'Η λειτουργία της πύλης συνεργατών δεν είναι ενεργή.';
 $lang['err_partners_no_contract']    = 'Η πρόσβαση στην πύλη συνεργατών απορρίφθηκε! (μη ενεργό συμβόλαιο πρόσβασης συνεργατών ή επενεργοποιημένη πρόσβαση)';
 
-$lang['create_ticket_success']          = 'Το εισητήριο δημιουργήθικε επιτυχώς.';
+$lang['create_ticket_success']          = 'Το εισιτήριο δημιουργήθικε επιτυχώς.';
 $lang['create_ticket_action_success']   = 'Η ενέργεια στάλθηκε επιτυχώς.';
 $lang['doc_upload_success']             = 'Το αρχείο μεταφορτώθηκε επιτυχώς.';
 $lang['change_pass_success']            = 'Ο κωδικός άλλαξε επιτυχώς.';
