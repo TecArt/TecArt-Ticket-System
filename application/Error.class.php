@@ -33,8 +33,12 @@ class tSysError
         $err .= "\tError-Code:    " .$code."\r\n";
         $err .= "\tError-Type:    " .(isset($errortype[$code]) ? $errortype[$code] : '')."\r\n";
         $err .= "\tError-Msg:     " .trim($message)."\r\n";
-        $err .= "\tMethod:        " .self::get_trace_num($trace, $trace_pos).' '.self::get_trace_file($trace, $trace_pos2)."\r\n";
-        $err .= "\tTrace:         " .self::get_trace($trace, $trace_pos2)."\r\n\r\n";
+
+        // prevent logging a mistyped password
+        if (strpos($message, 'Invalid credentials') === false) {
+            $err .= "\tMethod:        " .self::get_trace_num($trace, $trace_pos).' '.self::get_trace_file($trace, $trace_pos2)."\r\n";
+            $err .= "\tTrace:         " .self::get_trace($trace, $trace_pos2)."\r\n\r\n";
+        }
 
         $log_path = __SITE_PATH.'/error';
         

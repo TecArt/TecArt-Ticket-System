@@ -138,4 +138,3 @@ $lang['levelup']      = 'Level Up';
 $lang['refresh']      = 'Atualizar';
 $lang['folder_empty'] = 'Esta pasta esta vazia';
 $lang['mime_folder']  = 'Pasta';
-

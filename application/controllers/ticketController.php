@@ -5,6 +5,8 @@
     include __SITE_PATH . '/application/models/' . 'crmLogon.php';
     include __SITE_PATH . '/application/models/' . 'crmDocuments.php';
 
+    require_once __SITE_PATH . '/application/models/Rest/Exception/CouldNotAuthenticate.php';
+
     class ticketController extends secureController
     {
         private $tid;
@@ -15,8 +17,6 @@
         public function __construct($registry)
         {
             parent::__construct($registry);
-
-            $this->crm_session_id    = $_SESSION['crm_session_id'];
 
             $this->view->login_nr    = $_SESSION['login_number'];
             $this->view->company    = $_SESSION['company'];
@@ -56,7 +56,6 @@
 
             // sql condition for data base query
             $values = array();
-            $values['cid'] = $cid;
 
             if ($type == 'closed') {
                 $values['status'] = 3;
@@ -82,7 +81,7 @@
             }
 
             // get tickets
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
 
             $sections = $this->load_sections($crmTickets);
             $tickets = array();
@@ -107,7 +106,17 @@
                 }
             }
 
-            $tickets = $crmTickets->get_by_condition($values);
+            try {
+                $fields = array(
+                    'number,subject,requester_name,status,priority,start,stop,section_id,category,create_time,last_activity'
+                );
+                $tickets = $crmTickets->get_by_condition($cid, $values, $fields);
+            }
+            catch (Rest_Exception_CouldNotAuthenticate $e) {
+                $this->view->error_msg = $this->translate['err_connection'];
+                $this->index();
+                return;
+            }
 
             if ($tickets === false) {
                 $this->view->error_msg = $this->translate['err_connection'];
@@ -132,22 +141,25 @@
                 $ticket_ids[] = $ticket->id;
             }
 
-            $activities = array();
-            $activities['action'] = 1;
+            $activities = array('action');
+
 
             if (isset($this->registry->config['show_email_activities']) && $this->registry->config['show_email_activities'] == 1) {
-                $activities['email'] = 1;
-            } else {
-                $activities['email'] = 0;
+                $activities[] = 'email';
             }
 
             if (isset($this->registry->config['show_call_activities']) && $this->registry->config['show_call_activities'] == 1) {
-                $activities['call'] = 1;
-            } else {
-                $activities['call'] = 0;
+                $activities[] = 'call';
             }
 
-            $ticket_activities = $crmTickets->get_tickets_information(implode(';', $ticket_ids), $activities);
+            try {
+                $ticket_activities = $crmTickets->get_tickets_information($ticket_ids, $activities);
+            }
+            catch (Rest_Exception_CouldNotAuthenticate $e) {
+                $this->view->error_msg = $this->translate['err_connection'];
+                $this->index();
+                return;
+            }
 
             $data = $this->prepare_view_data($tickets, $ticket_activities);
 
@@ -177,179 +189,167 @@
          */
         public function show_ticket()
         {
-            // get ticket id from GET param
-            $ticket_id = isset($this->tid) ? $this->tid : strip_tags($this->registry->Params['tid']);
+            try {
+                // get ticket id from GET param
+                $ticket_id = isset($this->tid) ? $this->tid : strip_tags($this->registry->Params['tid']);
 
-            if (empty($ticket_id) || !isset($ticket_id)) {
-                $this->view->error_msg = $this->translate['err_no_ticket_found'];
-                $this->index();
-                return;
-            }
+                if (empty($ticket_id) || !isset($ticket_id)) {
+                    $this->view->error_msg = $this->translate['err_no_ticket_found'];
+                    $this->index();
+                    return;
+                }
 
-            $tid = intval(base64_decode($ticket_id));
-            // get the customer id from session
-            $cid = $_SESSION['cid'];
-            if (empty($cid) || !isset($cid)) {
-                $this->view->error_msg = $this->translate['err_cid_not_found'];
-                $this->index();
-                return;
-            }
+                $tid = intval(base64_decode($ticket_id));
+                // get the customer id from session
+                $cid = $_SESSION['cid'];
+                if (empty($cid) || !isset($cid)) {
+                    $this->view->error_msg = $this->translate['err_cid_not_found'];
+                    $this->index();
+                    return;
+                }
 
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
-            // get ticket and ticket actions from this ticket id
+                $crmTickets = new crmTickets();
+                // get ticket and ticket actions from this ticket id
 
-            if ($this->ticket == null) {
-                $ticket   = $crmTickets->get_ticket_by_id($tid);
-                if ($ticket === false) {
+                if ($this->ticket == null) {
+                    $ticket   = $crmTickets->get_ticket_by_id($tid);
+                    if ($ticket === false) {
+                        $this->view->error_msg = $this->translate['err_connection'];
+                        $this->index();
+                        return;
+                    }
+                } else {
+                    $ticket = $this->ticket;
+                    $this->ticket = null;
+                }
+
+                // if the ticket does not belong to the customer, then show error
+                if ($ticket[0]->contact_id != $_SESSION["cid"]) {
+                    $this->view->error_msg = $this->translate['err_no_authorization'];
+                    $this->index();
+                    return;
+                }
+
+                $closeTicketEnabled     = (isset($this->registry->config['closebutton']['enabled']) && $this->registry->config['closebutton']['enabled'] ? true : false);
+                if ($closeTicketEnabled && isset($this->registry->config['closebutton']['sections']) && count($this->registry->config['closebutton']['sections'])) {
+                    $close_sections     = $this->registry->config['closebutton']['sections'];
+                    $closeTicketEnabled = in_array($ticket[0]->section, $close_sections) ? true : false;
+                }
+
+                if (isset($_POST['close_ticket']) && $closeTicketEnabled) {
+
+                    try {
+                        $success = $crmTickets->close_ticket($tid);
+                    }
+                    catch (Rest_Exception_CouldNotAuthenticate $e) {
+                        $this->view->error_msg = $this->translate['err_connection'];
+                        $this->index();
+                        return;
+                    }
+
+                    if ($success === false) {
+                        $this->view->error_msg = $this->translate['err_connection'];
+                        $this->index();
+                        return;
+                    }
+
+                    $ticket[0]->status = 3;
+                }
+
+                // get ticket actions from this ticket id
+                $tactions = $crmTickets->get_ticket_action_by_ticket_id((int)$tid);
+                if ($tactions === false) {
                     $this->view->error_msg = $this->translate['err_connection'];
                     $this->index();
                     return;
                 }
-            } else {
-                $ticket = $this->ticket;
-                $this->ticket = null;
-            }
 
-            // if the ticket does not belong to the customer, then show error
-            if ($ticket[0]->cid != $_SESSION["cid"]) {
-                $this->view->error_msg = $this->translate['err_no_authorization'];
-                $this->index();
-                return;
-            }
-            
-            $closeTicketEnabled     = (isset($this->registry->config['closebutton']['enabled']) && $this->registry->config['closebutton']['enabled'] ? true : false);
-            if ($closeTicketEnabled && isset($this->registry->config['closebutton']['sections']) && count($this->registry->config['closebutton']['sections'])) {
-                $close_sections     = $this->registry->config['closebutton']['sections'];
-                $closeTicketEnabled = in_array($ticket[0]->section, $close_sections) ? true : false;
-            }
-            
-            if (isset($_POST['close_ticket']) && $closeTicketEnabled) {
-                $success = $crmTickets->close_ticket($tid);
-                if ($success === false) {
+                // get total duration
+                $total_duration = 0;
+                if (!empty($tactions)) {
+                    foreach ($tactions as $value) {
+                        $total_duration = $total_duration + $value->duration;
+                    }
+                }
+
+                $sections = $this->load_sections($crmTickets);
+                $ticket[0]->sectionName = isset($sections[$ticket[0]->section_id]) ? $sections[$ticket[0]->section_id] : '';
+
+                // get documents for this ticket
+                $crmDocs = new crmDocuments($this->crm_session_id, $this->registry->config);
+
+
+                $doc_tree = $crmDocs->get_documents_tree($this->translate['upload_folder_name'], $tid);
+                if (null === $doc_tree) {
                     $this->view->error_msg = $this->translate['err_connection'];
                     $this->index();
-                    return;
+                    exit;
                 }
-                
-                $ticket[0]->status = 3;
-            }
 
-            // get ticket actions from this ticket id
-            $tactions = $crmTickets->get_ticket_action_by_ticket_id(array('tid'=>$tid));
-            if ($tactions === false) {
+                // get only file, no folder
+                $docs = array();
+                foreach ($doc_tree as $doc) {
+                    if ($doc->folder ==! 1) {
+                        $array = array();
+                        $array['name']        = substr($doc->path, strlen($this->translate['upload_folder_name'])+1);
+                        $array['type']        = $doc->mimetype;
+                        $array['size']        = round($doc->filesize/1024);
+                        $array['path']        = $doc->path;
+                        $array['createtime']  = $doc->create_time;
+
+                        $docs[] = $array;
+                    }
+                }
+
+                $this->view->status_fields          =  $_SESSION["ticketstatus"];
+                $this->view->priorities_fields      =  $_SESSION["ticketpriority"];
+                $this->view->ticket                 =  $ticket[0];
+                $this->view->total_duration         =  $total_duration;
+                $this->view->docs                   =  $docs;
+                // pass through any unsaved activity entries
+                if (isset($_POST['notes_bak']) && !empty($_POST['notes_bak'])) {
+                    $this->view->notes_bak  = strip_tags($_POST['notes_bak']);
+                }
+
+                if (isset($this->registry->config['show_email_activities']) && $this->registry->config['show_email_activities'] == 1) {
+                    $this->view->show_emails  =  1;
+                }
+
+                if (isset($this->registry->config['show_call_activities']) && $this->registry->config['show_call_activities'] == 1) {
+                    $this->view->show_calls   =  1;
+                }
+
+                $this->view->showCloseButton = ($ticket[0]->status < 3 && $closeTicketEnabled ? true : false);
+
+                $this->view->render('show_ticket');
+            }
+            catch (Rest_Exception_CouldNotAuthenticate $e) {
                 $this->view->error_msg = $this->translate['err_connection'];
                 $this->index();
                 return;
             }
-
-            // get total duration
-            $total_duration = 0;
-            if (!empty($tactions)) {
-                foreach ($tactions as $value) {
-                    $total_duration = $total_duration + $value->duration;
-                }
-            }
-
-            $sections = $this->load_sections($crmTickets);
-            $ticket[0]->sectionName = isset($sections[$ticket[0]->section]) ? $sections[$ticket[0]->section] : '';
-
-            // get documents for this ticket
-            $crmDocs = new crmDocuments($this->crm_session_id, $this->registry->config);
-
-            $doc_tree = $crmDocs->get_documents_tree($this->translate['upload_folder_name'], $tid);
-            if ($doc_tree === false) {
-                $this->view->error_msg = $this->translate['err_connection'];
-                $this->index();
-                exit;
-            }
-
-            // get only file, no folder
-            $docs = array();
-            foreach ($doc_tree as $doc) {
-                if ($doc->folder ==! 1) {
-                    $array = array();
-                    $array['name']        = substr($doc->path, strlen($this->translate['upload_folder_name'])+2);
-                    $array['type']        = $doc->mimetype;
-                    $array['size']        = round($doc->filesize/1024);
-                    $array['path']        = $doc->path;
-                    $array['createtime']  = $doc->ctime;
-
-                    $docs[] = $array;
-                }
-            }
-
-            $this->view->status_fields          =  $_SESSION["ticketstatus"];
-            $this->view->priorities_fields      =  $_SESSION["ticketpriority"];
-            $this->view->ticket                 =  $ticket[0];
-            $this->view->total_duration         =  $total_duration;
-            $this->view->docs                   =  $docs;
-            // pass through any unsaved activity entries
-            if (isset($_POST['notes_bak']) && !empty($_POST['notes_bak'])) {
-                $this->view->notes_bak  = strip_tags($_POST['notes_bak']);
-            }
-
-            if (isset($this->registry->config['show_email_activities']) && $this->registry->config['show_email_activities'] == 1) {
-                $this->view->show_emails  =  1;
-            }
-
-            if (isset($this->registry->config['show_call_activities']) && $this->registry->config['show_call_activities'] == 1) {
-                $this->view->show_calls   =  1;
-            }
-            
-            $this->view->showCloseButton = ($ticket[0]->status < 3 && $closeTicketEnabled ? true : false);
-
-            $this->view->render('show_ticket');
         }
 
         private function parse_ticket_activities($data)
         {
             $activities = array();
-            foreach ($data as $activity) {
-                if (!empty($activity->crmTicketActionActivities) && count($activity->crmTicketActionActivities)) {
-                    foreach ($activity->crmTicketActionActivities as $value) {
-                        $action = array();
 
-                        $action['type']           = 'action';
-                        $action['user']       =  isset($_SESSION["crm_users"][$value->userid]['name']) ? $_SESSION["crm_users"][$value->userid]['name'] : '';
-                        $action['subject']     =  $value->subject;
-                        $action['body']        =  $value->body;
-                        $action['createtime']  =  $value->createtime;
-                        $action['chgtime']     =  $value->chgtime;
-                        $action['duration']    =  $value->duration;
+            foreach ($data as $input_activity) {
 
-                        $activities[] = $action;
-                    }
+                $activity = array();
+                $activity['type']      = $input_activity->type;
+                $activity['body']       =  $input_activity->description;
+                $activity['createtime'] =  $input_activity->create_time;
+                $activity['duration']   =  $input_activity->duration;
+
+                if ('email' === $input_activity->type) {
+                    $activity['user'] = $input_activity->user_name;
+                }
+                else {
+                    $activity['user'] = $_SESSION["crm_users"][$input_activity->user_id]['name'] ?? '';
                 }
 
-                if (!empty($activity->crmTicketCallActivities) && count($activity->crmTicketCallActivities)) {
-                    foreach ($activity->crmTicketCallActivities as $value) {
-                        $call = array();
-
-                        $call['type']            = 'call';
-                        $call['user']            =  isset($_SESSION["crm_users"][$value->userid]['name']) ? $_SESSION["crm_users"][$value->userid]['name'] : '';
-                        $call['subject']           =  $value->subject;
-                        $call['body']            =  $value->body;
-                        $call['createtime']    =  $value->createtime;
-                        $call['chgtime']         =  $value->chgtime;
-
-                        $activities[] = $call;
-                    }
-                }
-
-                if (!empty($activity->crmTicketEmailActivities) && count($activity->crmTicketEmailActivities)) {
-                    foreach ($activity->crmTicketEmailActivities as $value) {
-                        $mail = array();
-
-                        $mail['type']            = 'email';
-                        $mail['user']           =  $value->from;
-                        $mail['subject']        =  $value->subject;
-                        $mail['body']            =  $value->body;
-                        $mail['createtime']    =  $value->createtime;
-                        $mail['chgtime']         =  $value->chgtime;
-
-                        $activities[] = $mail;
-                    }
-                }
+                $activities[]= $activity;
             }
 
             //bubble sort
@@ -387,7 +387,7 @@
                 $types['call'] = 'call';
             }
 
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
             $ticket_activities = $crmTickets->get_ticket_activities_by_ticket_id($ticket_id);
 
             if ($ticket_activities === false) {
@@ -433,14 +433,17 @@
                 return;
             }
 
-            $crmContacts = new crmContacts($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
-            $contact = $crmContacts->get_contact_by_id($cid);
-            if ($contact === false) {
+            try {
+                $crmContacts = new crmContacts($this->registry->config);
+                $contact = $crmContacts->get_contact_by_id($cid);
+            }
+            catch (Rest_Exception_CouldNotAuthenticate $e) {
                 $this->view->error_msg = $this->translate['err_connection'];
                 $this->index();
                 return;
             }
-            if (empty($contact)) {
+
+            if (null === $contact) {
                 $this->view->error_msg = $this->translate['err_no_contact_found'];
                 $this->index();
                 return;
@@ -452,7 +455,7 @@
                 $this->view->selectedsection = 0;
             }
 
-            $email = $contact[0]->email;
+            $email = $contact->email;
 
             $this->view->categories_fields = $_SESSION["ticketcategories"];
             $this->view->priorities_fields = $_SESSION["ticketpriority"];
@@ -462,7 +465,7 @@
             $this->view->type   = null;
 
 
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
             $this->view->sections = $this->load_sections($crmTickets);
 
             $this->view->render('new_ticket');
@@ -570,7 +573,8 @@
                 return;
             }
             // get responsible person in crm for Ticket webservice.
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
+
             $res_user = $crmTickets->get_crm_responsible_user_for_ws($section);
 
             if (empty($res_user) || !$res_user) {
@@ -585,20 +589,28 @@
             $start_time = time();
             $stop_time  = $start_time + 3600*24;
 
-            $ticket = array( 'cid'          => intval($cid),
-                             'name'         => $name,
-                             'email'        => $email,
-                             'start'        => $start_time,
-                             'stop'         => $stop_time,
-                             'affected'     => $res_user,
-                             'priority'     => intval($priority),
-                             'subject'      => $subject,
-                             'notes'        => $notes,
-                             'status'       => 0,
-                             'category'     => $category,
-                             'section'      => intval($section));
+            $ticket = array( 'contact_id'       => intval($cid),
+                             'requester_name'   => $name,
+                             'requester_email'  => $email,
+                             'start'            => $start_time,
+                             'stop'             => $stop_time,
+                             'user_id'          => $res_user,
+                             'priority'         => intval($priority),
+                             'subject'          => $subject,
+                             'description'      => $notes,
+                             'status'           => 0,
+                             'category'         => $category,
+                             'section_id'          => intval($section));
 
-            $success = $crmTickets->add_ticket($ticket);
+            try {
+                $success = $crmTickets->add_ticket($ticket);
+            }
+            catch (Rest_Exception_CouldNotAuthenticate $e) {
+
+                $this->view->error_msg = $this->translate['err_connection'];
+                $this->index();
+                return;
+            }
 
             if (!$success) {
                 $this->view->error_msg = $this->translate['err_create_ticket'];
@@ -607,17 +619,17 @@
             }
 
             // refresh the time period
-            $min_time = $crmTickets->get_by_condition(array('cid'=>$cid, 'min_time'=>1));
-            $max_time = $crmTickets->get_by_condition(array('cid'=>$cid, 'max_time'=>1));
+//            $min_time = $crmTickets->get_by_condition(array('cid'=>$cid, 'min_time'=>1));
+//            $max_time = $crmTickets->get_by_condition(array('cid'=>$cid, 'max_time'=>1));
+//
+//            if ($min_time === false || $max_time === false) {
+//                $this->view->error_msg = $this->translate['err_connection'];
+//                $this->index();
+//                return;
+//            }
 
-            if ($min_time === false || $max_time === false) {
-                $this->view->error_msg = $this->translate['err_connection'];
-                $this->index();
-                return;
-            }
-
-            $_SESSION["min_time"]       = date('Y', $min_time[0]->createtime);
-            $_SESSION["max_time"]       = date('Y', $max_time[0]->createtime);
+//            $_SESSION["min_time"]       = date('Y', $min_time[0]->createtime);
+            $_SESSION["max_time"]       = date('Y');
 
             $this->view->error_msg = $this->translate['create_ticket_success'];
             $this->view->msg_type  = 'notice';
@@ -659,7 +671,7 @@
             }
 
             // get all tickets from this customer and check to ensure that he really has the authorization for this Ticket ID
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
 
             $ticket   = $crmTickets->get_ticket_by_id($ticket_id);
             if ($ticket === false) {
@@ -668,7 +680,7 @@
                 return;
             }
             // if the ticket does not belong to the customer, then show error
-            if ($ticket[0]->cid != $_SESSION["cid"]) {
+            if ($ticket[0]->contact_id != $_SESSION["cid"]) {
                 $this->view->error_msg = $this->translate['err_no_authorization'];
                 $this->index();
                 return;
@@ -686,10 +698,10 @@
             }
 
             // atype = 1 is extern action.
-            $values['userid']       = $userid;
+            $values['user_id']       = $userid;
             $values['ticket_id']    = intval($ticket_id);
-            $values['notes']        = $notes;
-            $values['atype']        = 1;
+            $values['description']        = $notes;
+            $values['type']        = 1;
 
             // first 60 letters for subject.
             if (strlen($notes) > 60) {
@@ -702,8 +714,8 @@
                 $subject = $notes;
             }
 
-            $values['subject']      = $subject;
-
+            $values['subject']  = $subject;
+            $values['date']     = time();
 
             $success = $crmTickets->add_ticket_action($values);
             if (!$success) {
@@ -747,7 +759,7 @@
             }
 
             // get all tickets from this customer and check to ensure that he really has the authorization for this Ticket ID
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
 
             $ticket   = $crmTickets->get_ticket_by_id($ticket_id);
             if ($ticket === false) {
@@ -756,7 +768,7 @@
                 return;
             }
             // if the ticket does not belong to the customer, then show error
-            if ($ticket[0]->cid != $_SESSION["cid"]) {
+            if ($ticket[0]->contact_id != $_SESSION["cid"]) {
                 $this->view->error_msg = $this->translate['err_no_authorization'];
                 $this->index();
                 return;
@@ -776,16 +788,16 @@
 
             $new_folder = true;
             foreach ($doc_tree as $doc) {
-                if (($doc->folder == 1) && (strtolower(substr($doc->path, 1)) == strtolower($this->translate['upload_folder_name']))) {
+                if (($doc->folder == 1) && (strtolower($doc->path) == strtolower($this->translate['upload_folder_name']))) {
                     $new_folder = false;
-                    $folder = substr($doc->path, 1);
+                    $folder = $doc->path;
                     break;
                 }
             }
             // if there is no doc folder for documents available, then create one!
             if ($new_folder == true) {
                 $success = $crmDocs->create_folder($this->translate['upload_folder_name'], $ticket_id);
-                if ($success != 1) {
+                if (!$success) {
                     $this->view->error_msg = $this->translate['err_create_folder'];
                     $this->index();
                     return;
@@ -799,7 +811,7 @@
 
             // adding doc to crm system
             $success = $crmDocs->upload_document($doc_name, $base64_content, $ticket_id);
-            if ($success != 1) {
+            if (!$success) {
                 $this->view->error_msg = $this->translate['err_adding_doc'];
                 $this->index();
                 return;
@@ -829,7 +841,7 @@
             }
 
             // get all tickets from this customer and check to ensure that he really has the authorization for this Ticket ID
-            $crmTickets = new crmTickets($this->crm_session_id, $this->registry->config, $this->registry->baseUrl);
+            $crmTickets = new crmTickets();
 
             $ticket   = $crmTickets->get_ticket_by_id($tid);
             if ($ticket === false) {
@@ -838,7 +850,7 @@
                 return;
             }
             // if the ticket does not belong to the customer, then show error
-            if ($ticket[0]->cid != $_SESSION["cid"]) {
+            if ($ticket[0]->contact_id != $_SESSION["cid"]) {
                 $this->view->error_msg = $this->translate['err_no_authorization'];
                 $this->index();
                 return;
@@ -846,31 +858,24 @@
 
             $crmDocs = new crmDocuments($this->crm_session_id, $this->registry->config);
 
-            $result =  $crmDocs->get_document($this->translate['upload_folder_name']."/".$doc_name, $tid);
-            if ($result === false) {
-                $this->view->error_msg = $this->translate['err_db'];
-                $this->index();
-                return;
-            }
-
-            $doc = $result[0];
-            if (!is_object($doc)) {
+            $doc_data =  $crmDocs->get_document($this->translate['upload_folder_name']."/".$doc_name, $tid);
+            if ($doc_data === false) {
                 $this->view->error_msg = $this->translate['err_no_document_found'];
                 $this->index();
                 return;
             }
 
-            if ($doc->filesize > 0) {
+            if ($doc_data->filesize > 0) {
                 header("Pragma: public");
                 header("Expires: 0");
                 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
                 header("Cache-Control: public");
                 header("Content-Description: File Transfer");
-                header("Content-Type: ".$doc->mimetype);
-                header('Content-Disposition: attachment; filename="'.substr($doc->path, strlen($this->translate['upload_folder_name']) + 2).'";');
+                header("Content-Type: ".$doc_data->mimetype);
+                header('Content-Disposition: attachment; filename="'.substr($doc_data->path, strlen($this->translate['upload_folder_name']) + 1).'";');
                 header("Content-Transfer-Encoding: binary");
-                header("Content-Length: ".$doc->filesize);
-                echo base64_decode($doc->content);
+                header("Content-Length: ".$doc_data->filesize);
+                echo $doc_data->content;
             }
             exit;
         }
@@ -916,14 +921,15 @@
 
                 $array = array();
                 $array['id']             = $ticket->id;
-                $array['tnumber']        = $ticket->tnumber;
+                $array['tnumber']        = $ticket->number;
                 $array['subject']        = $ticket->subject;
-                $array['name']           = $ticket->name;
+                $array['name']           = $ticket->requester_name;
                 $array['status']         = $ticket->status;
                 $array['priority']       = $ticket->priority;
                 $array['duration']       = $duration;
                 $array['category']       = $ticket->category;
-                $array['createtime']     = $ticket->createtime;
+                $array['createtime']     = $ticket->create_time;
+                $array['last_activity']  = $ticket->last_activity;
                 $array['ticket_action']  = $ta;
 
                 $total_duration = $total_duration + $duration;
@@ -932,32 +938,6 @@
             }
 
             return array('data'=>$data, 'total_duration'=>$total_duration);
-        }
-
-        /**
-         * get ticket actions from ticket ids
-         *
-         * @param object $crmTickets
-         * @param array $tickets
-         * @return array
-         */
-        private function get_ticket_actions($crmTickets, $tickets)
-        {
-            $ticket_ids = array();
-            foreach ($tickets as $ticket) {
-                $ticket_ids[] = $ticket->id;
-            }
-
-            $ticket_ids = implode(',', $ticket_ids);
-            $params = array('tids'=>$ticket_ids);
-
-            $result = $crmTickets->get_ticket_action_by_ids($params);
-
-            if ($result === false) {
-                return false;
-            }
-
-            return $result;
         }
 
         /**
@@ -1021,9 +1001,17 @@
          * returns array() with id = 0 for standard section
          * @return array
          */
-        private function load_sections($crmTickets)
+        private function load_sections(crmTickets $crmTickets)
         {
-            $crmSections = $crmTickets->get_ticket_sections();
+            try {
+                $crmSections = $crmTickets->get_ticket_sections();
+            }
+            catch (Rest_Exception_CouldNotAuthenticate $e) {
+                $this->view->error_msg = $this->translate['err_connection'];
+                $this->index();
+                return;
+            }
+
 
             $return = array();
             if ($crmSections) {
@@ -1034,26 +1022,26 @@
                                       : explode(':', $this->registry->config["ticket_sections"]));
 
                         foreach ($crmSections as $crmSection) {
-                            if (!in_array($crmSection->section_id, $confSections)) {
+                            if (!in_array($crmSection->id, $confSections)) {
                                 continue;
                             }
 
                             foreach ($confSections as $confSection) {
-                                if ($confSection == $crmSection->section_id) {
-                                    $return[$crmSection->section_id] =  $crmSection->name;
+                                if ($confSection == $crmSection->id) {
+                                    $return[$crmSection->id] =  $crmSection->name;
                                 }
                             }
                         }
                     } else {
                         foreach ($crmSections as $crmSection) {
-                            if ($this->registry->config["ticket_sections"] == $crmSection->section_id) {
-                                $return[$crmSection->section_id] = $crmSection->name;
+                            if ($this->registry->config["ticket_sections"] == $crmSection->id) {
+                                $return[$crmSection->id] = $crmSection->name;
                             }
                         }
                     }
                 } else {
                     foreach ($crmSections as $crmSection) {
-                        $return[$crmSection->section_id] = $crmSection->name;
+                        $return[$crmSection->id] = $crmSection->name;
                     }
                 }
             }

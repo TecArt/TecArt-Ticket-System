@@ -38,6 +38,7 @@ $lang['status']         = 'Status';
 $lang['id']             = 'Interne ID';
 $lang['tnumber']        = 'Ticketnummer';
 $lang['create_date']    = 'Erstellungsdatum';
+$lang['last_activity']  = 'Letztes Aktivitätendatum';
 $lang['edit']           = 'Geändert';
 $lang['year']           = 'Jahr';
 $lang['month']          = 'Monat';

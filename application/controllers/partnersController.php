@@ -10,15 +10,12 @@
         private $pid;
         private $ticket = null;
 
-        private $crm_session_id;
-        
         private $root_path;
+        private $crm_session_id;
 
         public function __construct($registry)
         {
             parent::__construct($registry);
-
-            $this->crm_session_id    = $_SESSION['crm_session_id'];
 
             $this->view->login_nr    = $_SESSION['login_number'];
             $this->view->company    = $_SESSION['company'];
@@ -119,14 +116,13 @@
         
             $crmDocs = new crmDocuments($this->crm_session_id, $this->registry->config, 'projects');
         
-            $result =  $crmDocs->get_document($doc_name, $pid);
-            if ($result === false) {
+            $doc =  $crmDocs->get_document($doc_name, $pid);
+            if ($doc === false) {
                 $this->view->error_msg = $this->translate['err_db'];
                 $this->index();
                 return;
             }
-        
-            $doc = $result[0];
+
             if (!is_object($doc)) {
                 $this->view->error_msg = $this->translate['err_no_document_found'];
                 $this->index();
@@ -143,7 +139,7 @@
                 header('Content-Disposition: attachment; filename="'.basename($doc->path).'";');
                 header("Content-Transfer-Encoding: binary");
                 header("Content-Length: ".$doc->filesize);
-                echo base64_decode($doc->content);
+                echo $doc->content;
             }
             exit;
         }
@@ -186,7 +182,7 @@
                 $listDoc['type']        = $doc->mimetype;
                 $listDoc['size']        = round($doc->filesize/1024);
                 $listDoc['path']        = $doc->path;
-                $listDoc['edittime']    = $doc->ctime ? $doc->ctime : ($doc->folder == 1 ? 0 : $doc->etime);
+                $listDoc['edittime']    = $doc->change_time;
                 $listDoc['isfolder']    = $doc->folder == 1 ? true : false;
                 $listDoc['icon']        = $doc->folder == 1 ? 'folder' : pathinfo($doc->path, PATHINFO_EXTENSION);
                 

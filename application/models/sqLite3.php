@@ -1,5 +1,5 @@
 <?php
-        class sqLite extends sqLiteAbstract
+    class sqLite extends sqLiteAbstract
     {
         public function __construct()
         {
@@ -143,8 +143,8 @@
                 return false;
             }
             
-            foreach ($crm_lists as $crm_list) {
-                $query = "INSERT INTO ticket_lists (list, value, name) VALUES ('$name', '$crm_list->id', '$crm_list->name')";
+            foreach ($crm_lists->entries as $crm_list) {
+                $query = "INSERT INTO ticket_lists (list, value, name) VALUES ('$name', '$crm_list->index', '$crm_list->de')";
                 
                 if (! $this->exec($query)) {
                     log_error('SQLITE Error: insert_list ' . $this->get_last_error());

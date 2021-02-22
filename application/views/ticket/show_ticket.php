@@ -27,7 +27,7 @@
         	<?php if ($showCloseButton) : ?>
         	<form name="form_close" method="post"><input type="submit" name="close_ticket" value="<?php echo $this->translate['ticket_close']; ?>" class="button-ticket"></form>
         	<?php endif; ?>
-			<h1><?php echo $this->translate['subject'].': '.$ticket->subject; ?></h1>			
+			<h1><?php echo $this->translate['subject'].': '.$ticket->subject; ?></h1>
 		</div>
 	</div>
 
@@ -36,33 +36,35 @@
             <table class="form">
                 <tr>
                     <td width="120"><?php echo $this->translate['tnumber']; ?>:</td>
-                    <td><?php echo $ticket->tnumber; ?></td>
+                    <td><?php echo $ticket->number; ?></td>
                     <td width="120"><?php echo $this->translate['create_date']; ?>:</td>
                     <td><?php echo date("d.M.y", $ticket->createtime).'&nbsp; - &nbsp;'.date("H:i", $ticket->createtime); ?></td>
+                    <td width="120"><?php echo $this->translate['last_activity']; ?>:</td>
+                    <td><?php echo date("d.M.y", $ticket->last_activity).'&nbsp; - &nbsp;'.date("H:i", $ticket->last_activity); ?></td>
                 </tr>
                 <tr>
                     <td><?php echo $this->translate['questioner']; ?>:</td>
-                    <td><?php echo $ticket->name; ?></td>
+                    <td><?php echo $ticket->requester_name; ?></td>
                 	<td><?php echo $this->translate['email']; ?>:</td>
-                    <td><?php echo $ticket->email; ?></td>
+                    <td colspan="3"><?php echo $ticket->requester_email; ?></td>
                 </tr>
                 <tr>
                     <td><?php echo $this->translate['priority']; ?>:</td>
                     <td><?php echo isset($priorities_fields[$ticket->priority]) ? $priorities_fields[$ticket->priority] : ''; ?></td>
                 	<td><?php echo $this->translate['status']; ?>:</td>
-                    <td><?php echo $status_fields[$ticket->status]; ?></td>
+                    <td colspan="3"><?php echo $status_fields[$ticket->status]; ?></td>
                 </tr>
                 <tr>
                     <td><?php echo $this->translate['duration']; ?>:</td>
                     <td><?php echo number_format($total_duration, 2, ',', ''); ?> &nbsp; h</td>
                     <?php if (!empty($ticket->sectionName)) : ?>
 	                    <td><?php echo $this->translate['tsection']; ?>:</td>
-	                    <td><?php echo $ticket->sectionName; ?></td>
+	                    <td colspan="3"><?php echo $ticket->sectionName; ?></td>
                     <?php endif; ?>
                 </tr>
                 <tr>
                     <td style="vertical-align:top"><?php echo $this->translate['description']; ?>:</td>
-                    <td colspan="3"><pre><?php echo $ticket->notes; ?></pre></td>
+                    <td colspan="5"><pre><?php echo $ticket->description; ?></pre></td>
                 </tr>
             </table>
 		</div>
@@ -117,7 +119,7 @@
     }?>
         </div>
     </div>
-    
+
     <?php endif; ?>
 
     <div id="head-middle">
