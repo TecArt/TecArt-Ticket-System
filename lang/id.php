@@ -95,7 +95,6 @@ $lang['upload']         = 'Unggah';
 
 $lang['upload_folder_name']  = 'Unggah';
 
-
 $lang['err_wrong_password']          = 'Anda memasukkan Kata Sandi yang salah!';
 $lang['err_password_not_matched']    = 'Kata Sandi tidak cocok!';
 $lang['err_no_username_password']    = 'Masukkan Nama Pengguna dan Kata Sandi!';

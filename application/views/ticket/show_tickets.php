@@ -43,7 +43,7 @@
 		                  	</select>
 		                </td>
 		                <?php if (count($sections) > 1) : ?>
-		                <td><?php echo $this->translate['sections'].': '; ?></td>                                   
+		                <td><?php echo $this->translate['sections'].': '; ?></td>
 		                <td>
 		                    <select onchange="submit_filter_form(this.name, '');" class="search" name="section" size="1">
 			                    <?php foreach ($sections as $id => $name) {
@@ -54,12 +54,12 @@
 			                        <?php
     } else {
         ?>
-			                            <option value="<?php echo $id; ?>"><?php echo $name; ?></option>                            
+			                            <option value="<?php echo $id; ?>"><?php echo $name; ?></option>
 			                    <?php
     }
 } ?>
 		                    </select>
-		                </td>      
+		                </td>
 		                <?php else : ?>
 		                <td><input type="hidden" name="section" value="<?php echo $selectedsection; ?>"></td>
 		                <?php endif; ?>
@@ -67,7 +67,7 @@
 		                    <input type="submit" value="<?php echo $this->translate['view']; ?>" class="button-ticket">
 		                </td>
 						<td style="width:100%">&nbsp;</td>
-		                <td align="right"><strong><?php echo $this->translate['duration'].': '; ?></strong></td>				
+		                <td align="right"><strong><?php echo $this->translate['duration'].': '; ?></strong></td>
 		                <td align="right"><?php if (!empty($duration)) {
     echo $duration.'&nbsp h';
 } else {
@@ -78,7 +78,7 @@
 	        </form>
 		</div>
     </div>
-    
+
 	<div id="datas">
 		<div id="datas-in">
 			<?php if (!empty($data)) : ?>
@@ -89,13 +89,14 @@
 		                <th><?php echo $this->translate['subject']; ?></th>
 		                <th style="text-align:center"><?php echo $this->translate['entries']; ?></th>
 		                <th><?php echo $this->translate['last_entry']; ?></th>
-		                <th><?php echo $this->translate['status']; ?></th>     
+		                <th><?php echo $this->translate['status']; ?></th>
 		                <th style="text-align:center"><?php echo $this->translate['priority']; ?></th>
 		                <th style="text-align:center"><?php echo $this->translate['duration']; ?>(h)</th>
 		                <th><?php echo $this->translate['category']; ?></th>
 		                <th><?php echo $this->translate['create_date']; ?></th>
+                        <th><?php echo $this->translate['last_activity']; ?></th>
 		            </tr>
-		        
+
 		            <?php foreach ($data as $ticket) : ?>
 		            <tr>
 		                <td><?php echo $ticket['tnumber']; ?></td>
@@ -129,7 +130,7 @@
                                 echo '&nbsp;<br>&nbsp;';
                             } ?>
 						</td>
-		    			<td><?php echo $status_fields[$ticket['status']]; ?></td>                                                     
+		    			<td><?php echo $status_fields[$ticket['status']]; ?></td>
 		                <td align="center"><?php echo isset($priorities_fields[$ticket['priority']]) ? $priorities_fields[$ticket['priority']] : ''; ?></td>
 		                <td align="center"><?php echo number_format($ticket['duration'], 2, ',', ''); ?></td>
 		                <td>
@@ -148,6 +149,14 @@
                                        echo date("d. M. Y", $ticket['createtime']).'&nbsp;-&nbsp;'.date("H:i", $ticket['createtime']);
                                    } ?>
 						</td>
+                        <td style="white-space:nowrap">
+                            <?php if($ticket['last_activity'] > 0) {
+                                echo date("d. M. Y", $ticket['last_activity']).'&nbsp;-&nbsp;'.date("H:i", $ticket['last_activity']);
+                            }
+                            else {
+                                echo '';
+                            }?>
+                        </td>
 		            </tr>
             	<?php endforeach; ?>
         	</table>
@@ -160,8 +169,6 @@
 		        </table>
 			</div>
 		<?php endif; ?>
-				
+
 		</div>
 	</div>
-	
-	

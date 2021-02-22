@@ -18,7 +18,7 @@ class main
         $this->translate   = $registry->lang;
         
         $this->wishlistUrl = isset($registry->config['partners']['enabled']) && $registry->config['partners']['enabled'] &&
-                             isset($_SESSION['crm_session_id']) && isset($registry->config['partners']['wishlist_url'])
+                             isset($registry->config['partners']['wishlist_url'])
                            ? $registry->config['partners']['wishlist_url']
                            : false;
     }

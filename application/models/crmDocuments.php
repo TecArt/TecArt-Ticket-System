@@ -10,14 +10,6 @@ class crmDocuments
     {
         $this->session_id    = $session_id;
         $this->module        = $module;
-
-        if (!isset($this->client)) {
-            try {
-                $this->client  = new SOAPClient($config['webservice_url']."soap/index.php?op=docs&wsdl");
-            } catch (Exception $e) {
-                log_error('SOAP Connection to CRM-docs error : '.$e->getMessage());
-            }
-        }
     }
 
     /**
@@ -27,19 +19,32 @@ class crmDocuments
      * @param int $objectid
      * @return array or false when error
      */
-    public function get_documents_tree($path, $objectid)
+    public function get_documents_tree($path, $objectid) : ?array
     {
         if (!$this->is_utf8($path)) {
             $path = utf8_encode($path);
         }
-        
-        try {
-            $return = $this->client->crmgetTree($this->session_id, $this->module, $path, -1, -1, -1, $objectid, -1);
-        } catch (Exception $e) {
-            log_error('crmgetTree error : '. $e->getMessage());
+
+        $params = array(
+            'module' => $this->module,
+            'path' => $path,
+            'object_id' => $objectid,
+            'recursive' => false,
+            'change_time' => 0
+        );
+
+        $response = Rest_Client::requestGet("document/tree", $params);
+        if ($response->isSuccessful()) {
+            $data = $response->getData();
+
+            if (null === $data) {//Dokumente api gibt keine data zurück wenn Verzeichnis noch nicht erstellt
+                return array();
+            }
+
+            return $data;
         }
-        
-        return $return;
+
+        return false;
     }
 
     /**
@@ -54,15 +59,27 @@ class crmDocuments
         // the document should be compressed
         $compress       = -1;
 
-        $return = false;
-        
-        try {
-            $return =  $this->client->crmgetDocument($this->session_id, $this->module, $docpath, -1, $objectid, $compress);
-        } catch (Exception $e) {
-            log_error('crmgetDocument error : '. $e->getMessage());
+        $params = array(
+            'path' => $docpath
+        );
+
+        $meta_response = Rest_Client::requestGet("document/{$this->module}/$objectid", $params);
+
+        if ($meta_response->isSuccessful()) {
+            $meta_data = $meta_response->getData();
+
+            $data_response = Rest_Client::requestGet("document/download/{$this->module}/$objectid", $params);
+
+            if ($data_response->isSuccessful()) {
+                $content = $data_response->getBodyString();
+
+                $meta_data->content= $content;
+
+                return $meta_data;
+            }
         }
 
-        return $return;
+        return false;
     }
 
     /**
@@ -70,19 +87,19 @@ class crmDocuments
      *
      * @param string $folder_name
      * @param int $ticket_id
-     * @return unknown
+     * @return bool
      */
-    public function create_folder($folder_name, $ticket_id)
+    public function create_folder($folder_name, $ticket_id) : bool
     {
-        $return = false;
-        
-        try {
-            $return = $this->client->crmcreateDirectory($this->session_id, $this->module, $folder_name, -1, $ticket_id);
-        } catch (Exception $e) {
-            log_error('crmcreateDirectory error : '. $e->getMessage());
-        }
+        $params = array(
+            'module' => $this->module,
+            'path' => $folder_name,
+            'object_id' => $ticket_id
+        );
 
-        return $return;
+        $response = Rest_Client::requestGet('document/directory', $params);
+
+        return $response->isSuccessful();
     }
 
     /**
@@ -95,15 +112,17 @@ class crmDocuments
      */
     public function upload_document($doc_name, $base64_content, $ticket_id)
     {
-        $return = false;
-        
-        try {
-            $return = $this->client->crmuploadDocument($this->session_id, $this->module, $doc_name, $base64_content, -1, $ticket_id, -1);
-        } catch (Exception $e) {
-            log_error('crmuploadDocument error : '. $e->getMessage());
-        }
+        $get_params = array(
+            'path' => $doc_name,
+            'subscription_type' => 0,
+            'sync_doc' => 0
+        );
+        $post_params = array(
+            'File' => $base64_content
+        );
+        $response = Rest_Client::requestPut("document/upload/{$this->module}/$ticket_id", $post_params, $get_params);
 
-        return $return;
+        return $response->isSuccessful();
     }
     
     /**

@@ -21,7 +21,8 @@
     include __SITE_PATH . '/application/' . 'Router.class.php';
     /*** include the template class ***/
     include __SITE_PATH . '/layout/' . 'main.class.php';
-        
+    require_once __SITE_PATH . '/application/models/Rest/Client.php';
+
     /*** registry object ***/
     $registry = new registry();
 
@@ -42,6 +43,8 @@
 
     /*** load the main template and set on registry ***/
     $registry->layout = new main($registry);
+
+    Rest_Client::init($registry->config);
 
     /*** load, run the controller ***/
     $registry->router->loader();

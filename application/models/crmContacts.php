@@ -1,56 +1,133 @@
 <?php
 
+require_once __SITE_PATH . '/application/models/Rest/Client.php';
 class crmContacts
 {
-    private $session_id;
-    private $client;
-    private $baseUrl;
-    
-    public function __construct($session_id, $config, $baseUrl)
-    {
-        $this->session_id = $session_id;
-        $this->baseUrl    = $baseUrl;
+    private $config;
 
-        if (!isset($this->client)) {
-            try {
-                $this->client  = new SOAPClient($config['webservice_url']."soap/index.php?op=contacts&wsdl");
-            } catch (Exception $e) {
-                log_error('SOAP Connection to CRM-contacts error !'. $e->getMessage());
+    public function __construct($config)
+    {
+        $this->config = $config;
+    }
+
+    private function authenticate_ad(string $username, string $password, string $dn) : bool
+    {
+        include_once __SITE_PATH . "/lib/adldap/adLDAP.php";
+
+        $dn_data = explode(',', $dn);
+
+        $base_dn = array();
+        $suffix  = array();
+
+        foreach ($dn_data as $dn_datum) {
+
+            $dn_pair = explode('=', $dn_datum);
+
+            if (count($dn_pair) !== 2) {
+                continue;
+            }
+
+            switch ($dn_pair[0])
+            {
+                case 'DC':
+                    $base_dn[] = $dn_datum;
+                    $suffix[] = $dn_pair[1];
+                    break;
             }
         }
-    }
-    
-    public function do_contact_authenticate($username, $pass)
-    {
-        $search_term['crmsearchContactItems'] = array();
 
-        if (strpos($username, '@') && strpos($username, '.')) {
-            $search_term['crmsearchContactItems'] = array(array('field'=>'email', 'value'=>$username),
-                                                           array('field'=>'password', 'value'=>$pass));
-        } else {
-            $search_term['crmsearchContactItems'] = array(array('field'=>'realnumber', 'value'=>$username),
-                                                           array('field'=>'password', 'value'=>$pass));
-        }
+        $options = array(
+            "account_suffix"     => '@' . implode('.', $suffix),
+            "base_dn"            => implode(',', $base_dn),
+            "domain_controllers" => array($this->config['ad_domain']),
+            "ad_port"			 => $this->config['ad_port'],
+            "use_ssl"			 => $this->config['ad_use_ssl'],
+            "use_tls"			 => $this->config['ad_use_tls']
+        );
 
         try {
-            $seach_result = $this->client->crmsearchContact($this->session_id, $search_term, 10, 0);
-        } catch (Exception $e) {
-            log_error('Error: crmsearchContact : '.$e->getMessage());
-
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+            $adldap = new adLDAP($options);
         }
-        
-
-        if (empty($seach_result) || count($seach_result) > 1 || !isset($seach_result[0]->cid)) {
+        catch (Exception $e) {
+            log_error('connection to ad failed: ' . $e->getMessage());
             return false;
         }
 
-        return (int)$seach_result[0]->cid;
+        try {
+            if (!$adldap->authenticate($username, $password)) {
+                log_error('authentication for user ' . $username . ' failed');
+                return false;
+            }
+        }
+        catch (adLDAPException $e) {
+            log_error('exception: ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
     }
 
+    public function do_contact_authenticate($username, $pass) : ?int
+    {
+        $response_field_filter = 'id';
+        $ad_username_field = '';
+        $ad_dn_field = '';
+
+        if (isset($this->config['use_ad']) && $this->config['use_ad']) {
+
+            $user_field = $this->config['ad_username_field'];
+            $tql = "$user_field = '$username'";
+
+            $ad_username_field = $this->config['ad_username_field'];
+            $ad_dn_field = $this->config['ad_dn_field'];
+            $response_field_filter = "id,$ad_username_field,$ad_dn_field";
+
+        }
+        elseif (strpos($username, '@') && strpos($username, '.')) {
+
+            $user_field = 'email';
+            $tql = "$user_field = '$username' AND password = '$pass'";
+        }
+        else {
+
+            $user_field = 'realnumber';
+            $tql = "$user_field = '$username' AND password = '$pass'";
+        }
+
+        $tql = urlencode($tql);
+
+        $response = Rest_Client::requestGet(
+            "contacts/by_tql_condition/$tql",
+            array('response_field_filter' => $response_field_filter)
+        );
+
+        if (!$response->isSuccessful()) {
+            return null;
+        }
+
+        $payload = $response->getPayload();
+
+        if (1 !== count($payload->data)) {
+            return null;
+        }
+
+        $contact = $payload->data[0];
+
+        if (isset($this->config['use_ad']) && $this->config['use_ad']) {
+
+            $dn = $contact->{$ad_dn_field};
+
+            if (empty($dn)) {
+                return null;
+            }
+
+            if (!$this->authenticate_ad($username, $pass, $dn)) {
+                return null;
+            }
+        }
+
+        return (int)$contact->id;
+    }
 
     /**
      * get one contact by contact id
@@ -60,37 +137,22 @@ class crmContacts
      */
     public function get_contact_by_id($id)
     {
-        $return = false;
+        $response = Rest_Client::requestGet("contact/$id");
 
-        try {
-            $return = $this->client->crmgetSingleContact($this->session_id, $id);
-        } catch (Exception $e) {
-            log_error('Error: crmgetSingleContact : '.$e->getMessage());
-  
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        if ($response->isSuccessful()) {
+            $data = $response->getData();
+
+            return $data;
         }
-
-        return $return;
+        else {
+            return null;
+        }
     }
 
-    public function change_password($cid, $new_pass)
+    public function change_password($cid, $new_pass) : bool
     {
-        $return = false;
+        $response = Rest_Client::requestPut("contact/$cid", array('data' => array('password' => $new_pass)));
 
-        try {
-            $return = $this->client->crmChangeContact($this->session_id, $cid, array( 'password' => $new_pass ));
-        } catch (Exception $e) {
-            log_error('Error: crmChangeContact : '.$e->getMessage());
-
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
-        }
-
-        return $return;
+        return $response->isSuccessful();
     }
 }

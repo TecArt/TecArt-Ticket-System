@@ -2,280 +2,218 @@
 
 class crmTickets
 {
-    private $session_id;
-    private $client;
-    private $baseUrl;
-
-    public function __construct($session_id, $config, $baseUrl)
-    {
-        $this->session_id = $session_id;
-        $this->baseUrl    = $baseUrl;
-
-        if (!isset($this->client)) {
-            try {
-                $this->client  = new SOAPClient($config['webservice_url']."soap/index.php?op=tickets&wsdl");
-            } catch (Exception $e) {
-                log_error('SOAP Connection to CRM-tickets error !');
-            }
-        }
-    }
-
-
-    /**
+   /**
      * get Ticket from CRM System by condition.
      *
      * @param array $params
-     * @return array or false when fehler
+     * @return array or false when error
      */
-    public function get_by_condition($params)
+    public function get_by_condition(int $cid, array $params, array $fields = null)
     {
-        $return = false;
+        $tql = '';
 
-        try {
-            $return = $this->client->crmgetTicketByCondition($this->session_id, $params);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicketByCondition : '.$e->getMessage());
+        $clauses = array();
+        $clauses[] = "contact_id = $cid";
 
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+
+        if (isset($params['status']) && (-1 !== $params['status'])) {
+            $clauses[] = "status = {$params['status']}";
+        }
+        if (isset($params['section'])) {
+            $clauses[] = "section_id = {$params['section']}";
+        }
+        if (isset($params['begin_time'])) {
+            $clauses[] = "start >= {$params['begin_time']}";
+        }
+        if (isset($params['end_time'])) {
+            $clauses[] = "stop <= {$params['end_time']}";
         }
 
-        return $return;
+        $tql = implode(' AND ', $clauses);
+        $tql = urlencode($tql);
+
+        $get_params = array();
+        if (null !== $fields) {
+            $get_params['response_field_filter'] = implode(',', $fields);
+        }
+
+        $response = Rest_Client::requestGet("tickets/by_tql_condition/$tql/", $get_params);
+
+        if ($response->isSuccessful()) {
+            return $response->getData();
+        }
+        else {
+            return false;
+        }
     }
+
+
 
     /**
      * get Ticket from CRM System by ticket id
      *
-     * @param unknown_type $id
-     * @return array or false when fehler
+     * @param int $id
+     * @return array or false when error
      */
-    public function get_ticket_by_id($id)
+    public function get_ticket_by_id(int $id)
     {
-        $return = false;
+        $response = Rest_Client::requestGet("ticket/$id");
 
-        try {
-            $return = $this->client->crmgetTicket($this->session_id, $id);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicket : '.$e->getMessage());
-             
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        if ($response->isSuccessful()) {
+            $data = $response->getData();
+
+            return array($data);
         }
-
-        return $return;
+        else {
+            return false;
+        }
     }
 
     /**
      * add one ticket in CRM System
      *
      * @param array $ticket
-     * @return ticket_id or false when fehler
+     * @return int ticket_id
      */
-    public function add_ticket($ticket)
+    public function add_ticket(array $ticket) : ?int
     {
-        $return = false;
+        $response = Rest_Client::requestPost('ticket', array('data' => $ticket));
 
-        try {
-            $return = $this->client->crmaddTicket($this->session_id, $ticket);
-        } catch (Exception $e) {
-            log_error('Error: crmaddTicket : '.$e->getMessage());
+        if ($response->isSuccessful()) {
+            $data = $response->getData();
 
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+            return (int)$data[0];
         }
 
-        return $return;
+        return null;
     }
 
     /**
      * get ticket action by ticket id
      *
      * @param array $param
-     * @return array or false when fehler
+     * @return array or false when error
      */
-    public function get_ticket_action_by_ticket_id($param)
+    public function get_ticket_action_by_ticket_id(int $ticket_id)
     {
-        $return = false;
+        $get_params = array(
+            'response_field_filter' => 'id,ticket_id,subject,duration,type,date,user_id,description,change_user,change_time,create_user,create_time'
+        );
+        $response = Rest_Client::requestGet("ticket_actions/by_ticket_id/$ticket_id", $get_params);
 
-        try {
-            $return = $this->client->crmgetTicketActionByCondition($this->session_id, $param);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicketActionByCondition : '.$e->getMessage());
-
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        if ($response->isSuccessful()) {
+            return $response->getData();
         }
 
-        return $return;
+        return false;
     }
-    
-    /**
-     * get ticket action from more ids
-     *
-     * @param array $ids
-     * @return array or false when fehler
-     */
-    public function get_ticket_action_by_ids($ids)
-    {
-        $return = false;
 
-        try {
-            $return = $this->client->crmgetTicketActionByCondition($this->session_id, $ids);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicketActionByCondition : '.$e->getMessage());
 
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
-        }
 
-        return $return;
-    }
 
     /**
      * add one ticket action
      *
      * @param array $ticket_action
-     * @return ticket action id or false when fehler
+     * @return bool
      */
-    public function add_ticket_action($ticket_action)
+    public function add_ticket_action($ticket_action) : bool
     {
-        $return = false;
+        $post_data = array(
+            'data' => $ticket_action
+        );
 
-        try {
-            $return = $this->client->crmaddTicketAction($this->session_id, $ticket_action);
-        } catch (Exception $e) {
-            log_error('Error: crmaddTicketAction : '.$e->getMessage());
+        $response = Rest_Client::requestPost('ticket_action/', $post_data);
 
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
-        }
-        
-        return $return;
+        return $response->isSuccessful();
     }
 
     /**
      * get crm responsible user for web service
      *
-     * @return array
      */
-    public function get_crm_responsible_user_for_ws($section = 0)
+    public function get_crm_responsible_user_for_ws($section = 0) :?int
     {
-        $return = false;
 
-        try {
-            $return = $this->client->crmgetResponsibleUserForSection($this->session_id, $section);
-        } catch (Exception $e) {
-            log_error('Error: crmgetResponsibleUserForSection : '.$e->getMessage());
-        
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        $response = Rest_Client::requestGet("ticket_section/$section/responsible_user");
+
+        if ($response->isSuccessful()) {
+            $data = $response->getData();
+
+            return (int)$data[0];
         }
 
-        return $return;
+        return null;
     }
 
     public function get_min_max_createtime($cid)
     {
-        $return = false;
+        $response = Rest_Client::requestGet("tickets/min_max_createtime/$cid");
 
-        try {
-            $return = $this->client->crmgetMinMaxCreateTime($this->session_id, $cid);
-        } catch (Exception $e) {
-            log_error('Error: crmgetMinMaxCreateTime : '.$e->getMessage());
-        
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        if ($response->isSuccessful()) {
+            return $response->getData();
         }
 
-        return $return;
+        return false;
     }
 
 
-    public function get_ticket_activities_by_ticket_id($tid)
+    public function get_ticket_activities_by_ticket_id(int $ticket_id)
     {
-        $return = false;
+        $get_params = array(
+            'type' => 'email,call,action'
+        );
+        $response = Rest_Client::requestGet("ticket/$ticket_id/activities/", $get_params);
 
-        try {
-            $return = $this->client->crmgetTicketActivities($this->session_id, $tid);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicketActivities : '.$e->getMessage());
-        
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
+        if ($response->isSuccessful()) {
+            $data = $response->getData();
+
+            if (null === $data) {
+                $data = array();
             }
-        }
 
-        return $return;
+            return $data;
+        }
+        else {
+            return false;
+        }
     }
 
-    public function get_tickets_information($ticket_ids, $activities)
+    public function get_tickets_information(array $ticket_ids, $activities)
     {
-        $return = false;
+        $ticket_ids_string = implode(',', $ticket_ids);
+        $activities_string = implode(',', $activities);
 
-        try {
-            $return = $this->client->crmgetTicketsInfo($this->session_id, $ticket_ids, $activities);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicketsInfo : '.$e->getMessage());
-        
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        $get_params = array(
+            'ticket_ids' => $ticket_ids_string,
+            'activities' => $activities_string
+        );
+
+        $response = Rest_Client::requestGet("tickets/info", $get_params);
+
+        if ($response->isSuccessful()) {
+            return $response->getData();
         }
-
-        return $return;
+        return null;
     }
     
-    public function get_ticket_sections()
+    public function get_ticket_sections() : ?array
     {
-        $return = false;
+        $response = Rest_Client::requestGet('ticket_sections');
 
-        try {
-            $return = $this->client->crmgetTicketSections($this->session_id);
-        } catch (Exception $e) {
-            log_error('Error: crmgetTicketSections : '.$e->getMessage());
-        
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
+        if ($response->isSuccessful()) {
+            return $response->getData();
         }
 
-        return $return;
+        return null;
     }
     
-    public function close_ticket($id)
+    public function close_ticket($id) : bool
     {
-        $return = false;
-        
-        try {
-            $return = $this->client->crmCloseTicket($this->session_id, $id);
-        } catch (Exception $e) {
-            log_error('Error: crmCloseTicket : '.$e->getMessage());
-        
-            if (strpos($e->getMessage(), 'Invalid session or session expired') !== false) {
-                header("Location: ".$this->baseUrl."?co=auth/logout");
-                exit;
-            }
-        }
-        
-        return $return;
+        $params = array('data' => array('status' => '3'));
+
+        $response = Rest_Client::requestPut("ticket/$id", $params);
+
+        return $response->isSuccessful();
     }
 }
