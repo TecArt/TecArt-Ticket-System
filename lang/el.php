@@ -16,9 +16,9 @@ $lang['show_current']       = 'Τρέχοντα Αιτήματα';
 $lang['show_all']           = 'Όλα τα Αιτήματα';
 $lang['create_new']         = 'Δημιουργία νέου Αιτήματος';
 $lang['closed_ticket']      = 'Κλειστά Αιτήματα';
-$lang['not_handle_ticket']  = 'Unhandled Αιτήματα';
-$lang['partner_portal']     = 'Partner Portal';
-$lang['partner_wishlist']   = 'Wishlist';
+$lang['not_handle_ticket']  = 'Ανεπίλυτα Αιτήματα';
+$lang['partner_portal']     = 'Πύλη Συνεργατών';
+$lang['partner_wishlist']   = 'Λίστα Επιθυμιών';
 
 $lang['show_all_year']      = 'Όλα τα Έτη...';
 $lang['show_all_month']     = 'Όλοι οι Μήνες...';
@@ -127,8 +127,8 @@ $lang['no_activity']                 = 'Δεν υπάρχειπεριεχόμε�
 $lang['no_set_activity']             = 'Παρακαλούμε επιλέξτε τουλάχιστον μια δραστηριότητα!';
 $lang['err_filter_nomonth']          = 'Παρακαλούμε επιλέξτε το έτος πριν φιλτράρετε κατά μήνα.';
 $lang['err_ok']                      = 'Εντάξει';
-$lang['err_partners_not_enabled']    = 'The Partner Portal function is not active.';
-$lang['err_partners_no_contract']    = 'Access to the Partner Portal has been denied! (no active partner access contract or access disabled)';
+$lang['err_partners_not_enabled']    = 'Η Πύλη Συνεργατών δεν είναι ενεργή.';
+$lang['err_partners_no_contract']    = 'Η πρόσβαση στην Πύλη Συνεργατών απορρίφθηκε! (δεν υπάρχει ενεργό συμβόλαιο πρόσβασης συνεργάτη ή η πρόσβαση έχει απενεργοποιηθεί)';
 
 $lang['create_ticket_success']          = 'Το αίτημα δημιουργήθηκε επιτυχώς.';
 $lang['create_ticket_action_success']   = 'Η ενέργεια απεστάλη επιτυχώς.';
